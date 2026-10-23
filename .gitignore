@@ -13,6 +13,7 @@ data/events_p2_test.csv
 # Skrip pembantu (seluruh eksekusi ada di dalam notebook utama .ipynb)
 *.py
 
-# File panduan dan markdown selain README.md
+# File panduan, dokumen selain README.md
 *.pdf
+*.docx
 detail_tugas_uts_gsd_moch_akbar_hanafi (1).md

@@ -56,7 +56,7 @@ UTS GRAF/
 
 ## Alur Pengerjaan
 
-1. **Filter Data:** Menyaring `events.csv` berdasarkan rentang timestamp (epoch ms) periode Fold Training P1 dan Fold Testing P2 milik mahasiswa.
+1. **Filter Data:** Menyaring `events.csv` berdasarkan rentang timestamp (epoch ms) periode Fold Training P1 dan Fold Testing P2 untuk saya (NIM: 23031554018).
 2. **Pemilihan User Target:** Dipilih acak dengan `np.random.seed(732)` dari user yang aktif di P1 maupun P2 dengan minimal 15 interaksi di P1. Terpilih Visitor `1293068`.
 3. **Pembentukan Subgraph:** Dibangun lingkungan dua langkah di sekitar user target (semua item yang pernah disentuh user target, lalu semua user lain yang menyentuh item yang sama, beserta seluruh interaksinya di P1). Hasilnya mencakup 374 user, 9.137 item, dan 25.886 interaksi.
 4. **Impor ke Neo4j:** Dilakukan per batch 1.000 baris dengan unique constraint pada `visitorId` dan `itemId`.
