@@ -4,4 +4,15 @@ __pycache__/
 *.pyc
 .DS_Store
 .ipynb_checkpoints/
+
+# Data besar
 data/events.csv
+data/events_p1_train.csv
+data/events_p2_test.csv
+
+# Skrip pembantu (seluruh eksekusi ada di dalam notebook utama .ipynb)
+*.py
+
+# File panduan dan markdown selain README.md
+*.pdf
+detail_tugas_uts_gsd_moch_akbar_hanafi (1).md
