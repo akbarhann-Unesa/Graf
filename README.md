@@ -1,163 +1,122 @@
-# Ujian Tengah Semester (UTS) Graf Sains Data
-## Analisis Graf Bipartite, Vector Space Modelling (VSM), dan Sistem Rekomendasi Collaborative Filtering KNN pada Dataset E-Commerce RetailRocket Menggunakan Neo4J dan Python
+# UTS Graf Sains Data
 
----
+Analisis graf bipartite, Vector Space Modelling, dan sistem rekomendasi collaborative filtering KNN pada dataset e-commerce RetailRocket memakai Neo4j dan Python.
 
-## 👤 Identitas Mahasiswa
+## Identitas
 
-| Atribut | Detail Informasi |
+| | |
 | :--- | :--- |
-| **Nama Lengkap** | **MOCH. AKBAR HANAFI** |
-| **Nomor Induk Mahasiswa (NIM)** | **23031554018** |
-| **No. Urut Presensi** | **3** |
-| **Kelas** | **GSD 2023E** |
-| **Program Studi** | S1 Sains Data |
-| **Institusi** | Universitas Negeri Surabaya — FMIPA |
-| **Mata Kuliah** | Graf Sains Data (3 SKS) |
-| **Dosen Pengampu** | Tim Dosen Graf Sains Data |
-| **Fold Training (P1)** | `2015-05-03 00:00:00 UTC` s/d `2015-07-22 23:59:59 UTC` (`1430611200000` s/d `1437609599999` ms) |
-| **Fold Testing (P2)** | `2015-07-23 00:00:00 UTC` s/d `2015-08-12 23:59:59 UTC` (`1437609600000` s/d `1439423999999` ms) |
+| Nama | MOCH. AKBAR HANAFI |
+| NIM | 23031554018 |
+| No. urut presensi | 3 |
+| Kelas | GSD 2023E |
+| Program Studi | S1 Sains Data, FMIPA Universitas Negeri Surabaya |
+| Mata Kuliah | Graf Sains Data (3 SKS) |
+| Fold Training (P1) | 2015-05-03 00:00:00 UTC s/d 2015-07-22 23:59:59 UTC (epoch ms 1430611200000 – 1437609599999) |
+| Fold Testing (P2) | 2015-07-23 00:00:00 UTC s/d 2015-08-12 23:59:59 UTC (epoch ms 1437609600000 – 1439423999999) |
 
----
-
-## 📋 Kriteria Keberterimaan (Acceptance Criteria)
-
-- [x] **AC 1: Lingkungan (Environment) & Setup Neo4j**
-  - Virtual environment Python (`myvenv`) terisolasi dan dependensi lengkap (`requirements.txt`) terpasang.
-  - Neo4J server aktif (via Docker Container) terhubung pada `bolt://localhost:7687` menggunakan driver Python resmi.
-- [x] **AC 2: Checkpoint Tugas Pendahuluan**
-  - Menjawab 3 pertanyaan konsep: (1) Nama database (`neo4j`), (2) Akses multi-database Cypher (`USE <db>`, `driver.session(database=...)`), (3) Jenis graf pertemanan (directed graph / graf berarah).
-  - Skrip pengujian operasi graf (`add_friend`, `print_friends`) dan Cypher Total Reset (`MATCH (n) DETACH DELETE n;`).
-- [x] **AC 3: Wrangling & Filter Timestamp Sesuai Identitas Mahasiswa**
-  - Pemfilteran timestamp interaksi pada berkas `events.csv` berdasarkan Unix Epoch milliseconds:
-    - Fold Training (P1): `1430611200000` s/d `1437609599999` (1.681.206 baris)
-    - Fold Testing (P2): `1437609600000` s/d `1439423999999` (433.774 baris)
-  - Penyimpanan berkas CSV mandiri di direktori `data/` (`events_p1_train.csv`, `events_p2_test.csv`, `events_subgraph.csv`).
-- [x] **AC 4: Impor & Analisis Komposisi Subgraph (Soal 2.1.3)**
-  - Mengimpor komunitas interaksi subgraph aktif ke Neo4j via mekanisme batch import dengan unique constraints pada `visitorId` dan `itemId`.
-  - Menguraikan komposisi simpul (`Visitor`: 374, `Item`: 9.137) dan relasi (`VIEWED`: 23.349, `ADDED_TO_CART`: 1.482, `BOUGHT`: 1.055) via Python API dan kueri Cypher.
-- [x] **AC 5: Vector Space Modelling (VSM) User & Item (Soal 2.1.4 & 2.1.5)**
-  - VSM Simpul User: Matriks $374 \times 9.137$, sparsity 99.57%, visualisasi graf proyeksi User menggunakan NetworkX.
-  - VSM Simpul Item: Matriks $9.137 \times 374$, sparsity 99.57%, visualisasi graf proyeksi Item (co-occurrence) menggunakan NetworkX.
-- [x] **AC 6: Evaluasi Komparatif Proyeksi User vs Item (Soal 2.1.6)**
-  - Analisis mendalam efektivitas vs efisiensi komputasi ($\mathcal{O}(|U|^2 \cdot |I|)$ vs $\mathcal{O}(|I|^2 \cdot |U|)$). Proyeksi User terbukti ~24.4x lebih efisien secara komputasi dan memori serta langsung memodelkan preferensi tetangga untuk rekomendasi KNN.
-- [x] **AC 7: Perhitungan Similarity & Update Graf (Soal 2.1.7 & 2.1.8)**
-  - Menghitung Cosine Similarity antar-pengunjung dengan target acuan **Visitor `1293068`**.
-  - Mengambil Top 5 record similarity tertinggi via Cypher.
-  - Menuliskan kembali relasi `[:SIMILAR {score: ...}]` ke Neo4j dan memverifikasi hasilnya.
-  - Membandingkan kondisi graf SEBELUM (bipartite) dan SESUDAH (homogen terproyeksi) via Cypher dan visualisasi graf NetworkX.
-- [x] **AC 8: Rekomendasi Collaborative Filtering KNN & Evaluasi Offline (Soal 2.2.1 & 2.2.2)**
-  - Pemilihan user target secara acak yang dapat direproduksi (`np.random.seed(17)`).
-  - Algoritma KNN ($k=5$) menghasilkan Top-3 item preferensi tertinggi yang belum pernah diakses target user.
-  - Evaluasi offline terhadap Fold Testing (P2):
-    - **Hit@5 = 1** (Ditemukan 2 hit pada Top 5: Item `241555` di Rank 2 dan Item `239006` di Rank 4).
-    - **NDCG@5 = 0.3601** (DCG@5 = 1.0616, IDCG@5 = 2.9485).
-
----
-
-## 📂 Struktur Repositori
+## Isi repositori
 
 ```text
 UTS GRAF/
-├── UTS_GSD_23031554018_MOCH_AKBAR_HANAFI.ipynb  # Jupyter Notebook Utama (Terisi Output Lengkap)
-├── import_neo4j.py                              # Skrip Impor Batch Data ke Neo4J (CLI Argparse)
-├── vsm_similarity_analytics.py                  # Skrip Pipeline Analisis VSM, Similarity, & KNN
-├── build_notebook.py                            # Skrip Generator Notebook
-├── requirements.txt                             # Daftar Dependensi Python
-├── README.md                                    # Dokumentasi Lengkap Proyek
-├── .gitignore                                   # Konfigurasi Pengabaian Git
+├── UTS_GSD_23031554018_MOCH_AKBAR_HANAFI.ipynb  # notebook utama, berisi seluruh pengerjaan dan outputnya
+├── import_neo4j.py                              # skrip impor batch ke Neo4j (pakai argparse)
+├── vsm_similarity_analytics.py                  # pipeline VSM, similarity, KNN, dan visualisasi
+├── build_notebook.py                            # generator notebook versi awal (sudah tidak sinkron)
+├── requirements.txt
 ├── data/
-│   ├── events_p1_train.csv                      # Fold Training P1 Hasil Filter (1.68M baris)
-│   ├── events_p2_test.csv                       # Fold Testing P2 Hasil Filter (433K baris)
-│   └── events_subgraph.csv                      # Subgraph Komunitas Interaksi (25.8K baris)
-└── plots/
-    ├── vsm_user_projection.png                  # Plot Graf Proyeksi Simpul User
-    ├── vsm_item_projection.png                  # Plot Graf Proyeksi Simpul Item
-    ├── graph_before_similarity.png              # Plot Kondisi Sebelum Perhitungan Similarity
-    ├── graph_after_similarity.png               # Plot Kondisi Sesudah Perhitungan Similarity
-    └── knn_recommendations.png                  # Plot Hasil Evaluasi Rekomendasi KNN Top-5
+│   ├── events.csv                               # data mentah RetailRocket (2.756.101 baris)
+│   ├── events_p1_train.csv                      # hasil filter periode P1 (1.681.206 baris)
+│   ├── events_p2_test.csv                       # hasil filter periode P2 (433.774 baris)
+│   └── events_subgraph.csv                      # subgraph di sekitar user target (25.886 baris)
+└── plots/                                       # lima gambar hasil visualisasi
 ```
 
----
+## Cara menjalankan
 
-## 🚀 Panduan Menjalankan Proyek
+1. Siapkan virtual environment dan dependensinya.
 
-### 1. Setup Virtual Environment
-```bash
-# Membuat virtual environment
-uv venv myvenv --python 3.12
-source myvenv/bin/activate
+   ```bash
+   uv venv myvenv --python 3.12
+   source myvenv/bin/activate
+   uv pip install -r requirements.txt
+   ```
 
-# Menginstal dependensi
-uv pip install -r requirements.txt
-```
+2. Pastikan Neo4j sudah jalan sebelum notebook dieksekusi.
 
-### 2. Memastikan Neo4J Aktif
-```bash
-# Menjalankan container Neo4J (Docker)
-docker start neo4j
+   ```bash
+   docker start neo4j
+   # kalau containernya belum ada:
+   # docker run -d --name neo4j -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/password123 neo4j:latest
+   ```
 
-# Atau membuat container baru jika belum ada:
-# docker run -d --name neo4j -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/password123 neo4j:latest
-```
+3. Jalankan notebook dari atas sampai bawah.
 
-### 3. Mengimpor Data ke Neo4J
-```bash
-python import_neo4j.py --reset --source data/events_subgraph.csv
-```
+   ```bash
+   jupyter notebook UTS_GSD_23031554018_MOCH_AKBAR_HANAFI.ipynb
+   ```
 
-### 4. Menjalankan Analisis VSM, Similarity, dan Rekomendasi KNN
-```bash
-python vsm_similarity_analytics.py
-```
+   Notebook sudah berdiri sendiri: penyaringan data, pemilihan user target, pembentukan subgraph, impor ke Neo4j, sampai evaluasi semuanya dikerjakan di dalam notebook. Dua skrip `.py` di luar notebook dipakai kalau ingin menjalankan tahapannya terpisah:
 
-### 5. Membuka dan Mengeksekusi Jupyter Notebook
-```bash
-jupyter notebook UTS_GSD_23031554018_MOCH_AKBAR_HANAFI.ipynb
-```
+   ```bash
+   python import_neo4j.py --reset --source data/events_subgraph.csv
+   python vsm_similarity_analytics.py
+   ```
 
----
+## Alur pengerjaan
 
-## 📊 Ringkasan Hasil Analisis dan Evaluasi
+1. **Penyaringan data.** `events.csv` disaring berdasarkan kolom `timestamp` (Unix epoch milidetik) sesuai dua periode yang ditentukan, lalu disimpan ke file CSV terpisah.
+2. **Pemilihan user target.** Dipilih acak dengan `np.random.seed(732)` dari daftar kandidat terurut berisi user yang aktif di P1 maupun P2 dengan minimal 15 interaksi di P1. Hasilnya Visitor `1293068`. Seed-nya ditetapkan supaya hasilnya sama setiap kali dijalankan ulang.
+3. **Pembentukan subgraph.** Diambil lingkungan dua langkah di sekitar user target: semua item yang pernah ia sentuh, semua user lain yang menyentuh item yang sama, lalu seluruh interaksi user-user tersebut di P1. Hasilnya 374 user, 9.137 item, dan 25.886 baris interaksi.
+4. **Impor ke Neo4j.** Subgraph diimpor per batch 1.000 baris dengan unique constraint pada `visitorId` dan `itemId`. Node dibuat dengan `MERGE` supaya tidak dobel, relasi dibuat dengan `CREATE` supaya setiap interaksi tetap tercatat terpisah beserta `timestamp`-nya.
+5. **VSM dan proyeksi.** Matriks User berukuran 374 x 9.137 dan matriks Item adalah transpose-nya. Keduanya punya 14.568 elemen non-nol dan sparsity 99,57%.
+6. **Similarity.** Cosine similarity dihitung dari vektor user target terhadap seluruh user, lalu lima nilai tertinggi ditulis balik ke graf sebagai relasi `[:SIMILAR {score: ...}]`.
+7. **Rekomendasi dan evaluasi.** KNN dengan k = 5, hasilnya diuji terhadap interaksi nyata user target di periode testing.
 
-### 1. Komposisi Subgraph di Neo4J
-- **Simpul Visitor:** 374 node
-- **Simpul Item:** 9.137 node
-- **Relasi `[:VIEWED]`:** 23.349 relasi
-- **Relasi `[:ADDED_TO_CART]`:** 1.482 relasi
-- **Relasi `[:BOUGHT]`:** 1.055 relasi
-- **Total Relasi Interaksi:** 25.886 relasi
+## Ringkasan hasil
 
-### 2. Top-5 Rekor Similarity Tertinggi untuk Record Acuan (Visitor `1293068`)
-1. **Visitor `42561`** : Cosine Similarity = `0.9107`
-2. **Visitor `1319005`** : Cosine Similarity = `0.9064`
-3. **Visitor `895969`** : Cosine Similarity = `0.8867`
-4. **Visitor `708420`** : Cosine Similarity = `0.8825`
-5. **Visitor `660351`** : Cosine Similarity = `0.8825`
+**Komposisi subgraph di Neo4j**
 
-### 3. Top-3 Item Rekomendasi Collaborative Filtering KNN ($k=5$)
-1. **Item ID `38965`** : Skor Prediksi Preferensi = `3.5862`
-2. **Item ID `241555`** : Skor Prediksi Preferensi = `3.5709` (**HIT!** Diakses user pada Fold Testing P2)
-3. **Item ID `265571`** : Skor Prediksi Preferensi = `2.6602`
+| Simpul | Jumlah | Relasi | Jumlah |
+| :--- | ---: | :--- | ---: |
+| Item | 9.137 | VIEWED | 23.349 |
+| Visitor | 374 | ADDED_TO_CART | 1.482 |
+| | | BOUGHT | 1.055 |
+| **Total** | **9.511** | **Total** | **25.886** |
 
-### 4. Hasil Evaluasi Offline (Fold Testing P2)
-- **Hit@5:** `1` (Berhasil mengenai 2 item aktual pada P2 dari 5 rekomendasi)
-- **NDCG@5:** `0.3601` ($DCG@5 = 1.0616$, $IDCG@5 = 2.9485$)
+**Lima similarity tertinggi terhadap Visitor 1293068**
 
----
+| Peringkat | Visitor | Cosine similarity |
+| ---: | ---: | ---: |
+| 1 | 42561 | 0,9107 |
+| 2 | 1319005 | 0,9064 |
+| 3 | 895969 | 0,8867 |
+| 4 | 708420 | 0,8825 |
+| 5 | 660351 | 0,8825 |
 
-## 🖼️ Galeri Visualisasi Graf
+**Tiga item yang direkomendasikan (k = 5)**
 
-| Visualisasi | Keterangan |
+| Peringkat | Item ID | Skor prediksi | Keterangan |
+| ---: | ---: | ---: | :--- |
+| 1 | 38965 | 3,5862 | tidak diakses di P2 |
+| 2 | 241555 | 3,5709 | kena, diakses user di P2 |
+| 3 | 265571 | 2,6602 | tidak diakses di P2 |
+
+**Evaluasi terhadap periode testing**
+
+- Hit@5 = 1 (dua item kena dari lima rekomendasi, yaitu Item 241555 di peringkat 2 dan Item 239006 di peringkat 4)
+- DCG@5 = 1,0616; IDCG@5 = 2,9485; NDCG@5 = 0,3601
+
+## Visualisasi
+
+| Gambar | Isi |
 | :--- | :--- |
-| ![VSM User](plots/vsm_user_projection.png) | **Proyeksi VSM Simpul User:** Menunjukkan target user (merah) terhubung dengan 5 tetangga terdekatnya beserta bobot Cosine Similarity. |
-| ![VSM Item](plots/vsm_item_projection.png) | **Proyeksi VSM Simpul Item:** Menunjukkan jaringan co-occurrence antar-produk e-commerce berdasarkan pola co-viewing pengguna. |
-| ![Before Similarity](plots/graph_before_similarity.png) | **Kondisi SEBELUM:** Graf bipartite murni di mana Visitor hanya terhubung ke Item melalui relasi interaksi. |
-| ![After Similarity](plots/graph_after_similarity.png) | **Kondisi SESUDAH:** Graf homogen diperkaya dengan relasi langsung `[:SIMILAR]` antar-Visitor. |
-| ![KNN Recommendation](plots/knn_recommendations.png) | **Evaluasi Rekomendasi:** Peringkat Top-5 item rekomendasi yang menyoroti keberhasilan Hit pada Fold Testing P2. |
+| `plots/vsm_user_projection.png` | Proyeksi sisi User: user target dan lima tetangga terdekatnya beserta bobot similarity |
+| `plots/vsm_item_projection.png` | Proyeksi sisi Item: keterhubungan antar-produk berdasarkan pola co-viewing |
+| `plots/graph_before_similarity.png` | Kondisi graf sebelum similarity dihitung, masih bipartite murni |
+| `plots/graph_after_similarity.png` | Kondisi graf sesudahnya, sudah ada relasi langsung antar-Visitor |
+| `plots/knn_recommendations.png` | Peringkat lima rekomendasi beserta penandaan item yang kena di periode testing |
 
----
+## Pengumpulan
 
-## 📌 Pengumpulan Tugas
-- Repositori GitHub ini memuat seluruh kode program, dokumentasi notebook `.ipynb` yang terisi output lengkap, visualisasi, dan dataset hasil filter.
-- Tautan repositori GitHub dikumpulkan pada portal LMS SiDia sesuai batas waktu yang ditentukan.
+Repositori ini berisi kode, notebook beserta outputnya, visualisasi, dan dataset hasil penyaringan. Tautan repositori dikumpulkan lewat LMS SiDia.

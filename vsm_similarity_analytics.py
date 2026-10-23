@@ -26,8 +26,10 @@ plt.rcParams["axes.linewidth"] = 0.8
 
 URI = "neo4j://localhost:7687"
 AUTH = ("neo4j", "password123")
+# User target dipilih acak dengan seed di notebook (kandidat: user aktif di P1 dan P2
+# dengan minimal 15 interaksi di P1). Hasil pemilihan dengan SEED di bawah: 1293068.
+SEED = 732
 TARGET_USER = 1293068
-SEED = 17
 
 
 def load_data():
@@ -102,7 +104,8 @@ def update_neo4j_similarities(driver, target_user, neighbor_records):
     UNWIND $batch AS rec
     MATCH (u1:Visitor {visitorId: rec.source})
     MATCH (u2:Visitor {visitorId: rec.target})
-    MERGE (u1)-[r:SIMILAR {score: rec.score}]->(u2)
+    MERGE (u1)-[r:SIMILAR]->(u2)
+    SET   r.score = rec.score
     RETURN count(r) AS updated
     """
     batch = [

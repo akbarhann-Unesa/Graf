@@ -1,3 +1,8 @@
+# CATATAN: skrip generator ini sudah tidak sinkron dengan notebook.
+# Notebook UTS_GSD_23031554018_MOCH_AKBAR_HANAFI.ipynb sudah diedit langsung
+# (penambahan sel pemilihan user acak, pembentukan subgraph, dan impor Neo4j).
+# Jangan jalankan ulang skrip ini kecuali ingin membangun notebook dari nol.
+
 #!/usr/bin/env python3
 """
 build_notebook.py
@@ -88,7 +93,7 @@ Laporan dan implementasi ini mengacu pada kriteria keberterimaan (Acceptance Cri
    - Menyimpan kembali relasi `[:SIMILAR {score: ...}]` ke Neo4j dan memverifikasi dengan Cypher.
    - Menampilkan kondisi graf SEBELUM vs SESUDAH perhitungan similarity (Cypher dan visualisasi graf NetworkX).
 8. **AC 8: Rekomendasi Collaborative Filtering KNN & Evaluasi Offline (Soal 2.2.1 & 2.2.2)**
-   - Pemilihan user target secara acak yang dapat direproduksi (`random seed`).
+   - Pemilihan user target secara acak yang dapat direproduksi (`np.random.seed(732)`).
    - Algoritma KNN ($k=5$) merekomendasikan Top-3 item preferensi tertinggi yang belum pernah diakses target user.
    - Evaluasi akurasi offline terhadap interaksi faktual user pada **Fold Testing (P2)** dengan metrik **Hit@5** dan **NDCG@5**.
 """)
@@ -543,7 +548,7 @@ add_md("""
 #### **2.2.1 Rekomendasi Collaborative Filtering KNN ($k=5$)**
 
 1. **Pemilihan User Acak yang Dapat Direproduksi:**
-   - Parameter seed ditetapkan: `np.random.seed(17)` (dapat direproduksi).
+   - Parameter seed ditetapkan: `np.random.seed(732)` (dapat direproduksi).
    - Dari sekumpulan pengguna yang memiliki interaksi aktif pada Fold Training (P1) sekaligus Fold Testing (P2), terpilih pengunjung: **Visitor `1293068`**.
    - User ini memiliki 19 catatan aktivitas di Fold P1 (8 item unik), dan 12 catatan aktivitas di Fold P2 (7 item unik).
 
